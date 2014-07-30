@@ -1213,6 +1213,10 @@ class LibvirtConfigGuest(LibvirtConfigObject):
         if len(self.devices) == 0:
             return
         devices = etree.Element("devices")
+        # Wolfstack customized QEMU
+        emulator = self._text_node("emulator",
+                            "/home/wolf/qemu-introspection/qemu-system-x86_64")
+        LOG.info('Wolfstack customized emulator: %s', str(emulator))
         for dev in self.devices:
             devices.append(dev.format_dom())
         root.append(devices)
