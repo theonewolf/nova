@@ -1,4 +1,7 @@
-# Copyright 2012 IBM Corp.
+# Copyright 2014 Carnegie Mellon University
+# Author: Wolfgang Richter <wolf@cs.cmu.edu>
+#
+#
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -12,7 +15,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from nova.virt.libvirt import driver, introspection
+from nova.virt.libvirt import driver 
 
-LibvirtDriver = driver.LibvirtDriver
-IntrospectionDriver =  introspection.IntrospectionDriver
+class IntrospectionDriver(driver.LibvirtDriver):
+    def __init__(self, virtapi, read_only=False):
+        super(IntrospectionDriver, self).__init__(virtapi)
+        driver.LOG.info('IntrospectionDriver compute driver activated!')
