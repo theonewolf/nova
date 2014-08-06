@@ -310,6 +310,16 @@ class InstanceInfoCache(BASE, NovaBase):
                             primaryjoin=instance_uuid == Instance.uuid)
 
 
+class IntrospectedEntity(BASE, NovaBase):
+    """Represents an introspected entity associated with an instance."""
+    __tablename__ = "introspected_entities"
+
+    id = Column(Integer, primary_key=True)
+    instance_uuid = Column(String(36), nullable = False)
+    drive_id = Column(String(255))
+    introspection_host = Column(String(255))
+
+
 class InstanceTypes(BASE, NovaBase):
     """Represents possible flavors for instances.
 
