@@ -47,13 +47,13 @@ class IntrospectionController(object):
         msg = _("show currently not implemented.")
         raise exc.HTTPNotImplemented(explanation=msg)
 
-    def activate(self, req, server_id, body):
+    def create(self, req, server_id, body):
         """Activate introspection for a given aspect of an instance."""
 
         msg = _("activate currently not implemented.")
         raise exc.HTTPNotImplemented(explanation=msg)
 
-    def deactivate(self, req, server_id, id):
+    def delete(self, req, server_id, id):
         """Deactivate introspection for a given aspect of an instance."""
 
         msg = _("activate currently not implemented.")
