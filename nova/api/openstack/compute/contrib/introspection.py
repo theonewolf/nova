@@ -20,12 +20,21 @@ from webob import exc
 
 from nova.api.openstack import extensions
 from nova import compute
+from nova import exception
 from nova.openstack.common.gettextutils import _
 from nova.openstack.common import log as logging
 
 
 LOG = logging.getLogger(__name__)
 authorize = extensions.extension_authorizer('compute', 'introspection')
+
+def _translate_introspected_entity_view(ie_info):
+    """Maps keys for introspected entity details view."""
+    return {
+            'drive_id'                  : ie_info['drive_id'],
+            'introspected_entity_id'    : ie_info['id'],
+            'target'                    : ie_info['introspection_target']
+           }
 
 class IntrospectionController(object):
     """The  introspection API controller for the OpenStack API."""
@@ -38,26 +47,103 @@ class IntrospectionController(object):
     def index(self, req, server_id):
         """Returns the list of introspected entities for a given instance."""
 
-        msg = _("index currently not implemented.")
-        raise exc.HTTPNotImplemented(explanation=msg)
+        return self._items(req, server_id, entity_maker=
+                           _translate_introspected_entity_view)
 
     def show(self, req, server_id, id):
         """Return data about the given entity's introspection."""
 
-        msg = _("show currently not implemented.")
-        raise exc.HTTPNotImplemented(explanation=msg)
+        context = req.environ['nova.context']
+        authorize(context)
+
+        ie_id = id
+        try:
+            self.compute_api.get(context, server_id)
+        except exception.NotFound:
+            raise exc.HTTPNotFound()
+
+        try:
+            ie_info = self.compute_api.show_ie(context, ie_id)
+        except exception.NotFound:
+            raise exc.HTTPNotFound()
+
+        if ie_info['introspected_entity']['instance_uuid'] != server_id:
+            raise exc.HTTPNotFound()
+
+        return {'introspectedEntity' : _translate_introspected_entity_view(
+                ie_info['introspected_entity'])}
 
     def create(self, req, server_id, body):
         """Activate introspection for a given aspect of an instance."""
+        context = req.environ['nova.context']
+        authorize(context)
 
-        msg = _("activate currently not implemented.")
-        raise exc.HTTPNotImplemented(explanation=msg)
+        drive_id = None
+        target = None
+
+        if body:
+            ie = body['introspectionEntity']
+            drive_id = ie.get('drive_id', None)
+            target = ie.get('introspection_target', None)
+
+        if not drive_id or not target:
+            raise exc.HTTPBadRequest()
+
+        try:
+            instance = self.compute_api.get(context, server_id,
+                                            want_objects=True)
+            LOG.audit(_("Introspect entity"), instance=instance)
+            ie = self.compute_api.activate_introspection(context, instance,
+                                                         drive_id, target)
+        except NotImplementedError:
+            msg = _("Compute driver does not support this function.")
+            raise exc.HTTPNotImplemented(explanation=msg)
+
+        return self.show(req, server_id, ie['id'])
 
     def delete(self, req, server_id, id):
         """Deactivate introspection for a given aspect of an instance."""
+        context = req.environ['nova.context']
+        authorize(context)
+        ie_id = id
 
-        msg = _("activate currently not implemented.")
-        raise exc.HTTPNotImplemented(explanation=msg)
+        try:
+            instance = self.compute_api.get(context, server_id,
+                                            want_objects=True)
+            LOG.audit(_("Deactivate introspection %s"), ie_id,
+                      instance=instance)
+        except exception.NotFound:
+            raise exc.HTTPNotFound()
+
+        try:
+            self.compute_api.deactivate_introspection(context, instance,
+                                                      ie_id=ie_id)
+        except NotImplementedError:
+            msg = _("Compute driver does not support this function.")
+            raise exc.HTTPNotImplemented(explanation=msg)
+        
+        return webob.Response(status_int=202)
+
+    def _items(self, req, server_id, entity_maker):
+        """Returns a list of transformed introspected entities"""
+        context = req.environ['nova.context']
+        authorize(context)
+
+        results = []
+
+        try:
+            data = self.compute_api.list_introspected_entities(context,
+                                                               server_id)
+        except exception.NotFound:
+            raise exc.HTTPNotFound()
+        except NotImplementedError:
+            msg = _("Compute driver does not support this function.")
+            raise exc.HTTPNotImplemented(explanation=msg)
+
+        ies = data.get('introspected_entities', [])
+        results = [entity_maker(ie) for ie in ies]
+
+        return {'introspectedEntities' : results}
 
 class Introspection(extensions.ExtensionDescriptor):
     """Introspection support."""
