@@ -317,7 +317,7 @@ class IntrospectedEntity(BASE, NovaBase):
     id = Column(Integer, primary_key=True)
     instance_uuid = Column(String(36), nullable = False)
     drive_id = Column(String(255))
-    introspection_host = Column(String(255))
+    introspection_target = Column(String(255))
 
 
 class InstanceTypes(BASE, NovaBase):

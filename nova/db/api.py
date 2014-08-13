@@ -1923,3 +1923,36 @@ def archive_deleted_rows_for_table(context, tablename, max_rows=None):
     """
     return IMPL.archive_deleted_rows_for_table(context, tablename,
                                                max_rows=max_rows)
+
+
+####################
+
+
+def introspected_entity_create(context, values):
+    """Create an introspected entity record in the database."""
+    return IMPL.introspected_entity_create(context, values)
+
+
+def introspected_entity_get(context, ie_id):
+    """Gets an introspected entity from the table."""
+    return IMPL.introspected_entity_get(context, ie_id)
+
+
+def introspected_entity_get_by_instance(context, instance_id):
+    """Gets all introspected entities for instance."""
+    return IMPL.introspected_entity_get_by_instance(context, instance_id)
+
+
+def introspected_entity_delete_by_instance(context, instance_id):
+    """Delete introspected entity records associated with instance."""
+    return IMPL.introspected_entity_delete_by_instance(context, instance_id)
+
+
+def introspected_entity_delete_by_id(context, ie_id):
+    """Delete a specified introspected entity by id."""
+    return IMPL.introspected_entity_delete_by_id(context, ie_id)
+
+
+def introspected_entity_get_all(context):
+    """Gets all introspected entities from the table."""
+    return IMPL.introspected_entity_get_all(context)

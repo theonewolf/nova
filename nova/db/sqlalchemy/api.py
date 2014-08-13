@@ -6064,3 +6064,85 @@ def pci_device_update(context, node_id, address, values):
         device.update(values)
         session.add(device)
     return device
+
+###################
+
+
+@require_context
+def introspected_entity_create(context, values):
+    """Create a new introspected entity record in the database.
+
+    :param values: = dict containing column values
+    """
+    try:
+        ie_ref = models.IntrospectedEntity()
+        ie_ref.update(values)
+        ie_ref.save()
+    except db_exc.DBError:
+        raise exception.IntrospectedEntityCreateException()
+
+    return ie_ref
+
+
+def _introspected_entity_query(context, session=None, use_slave=False):
+    return model_query(context, models.IntrospectedEntity, session=session,
+                       read_deleted="no", use_slave=use_slave)
+
+
+@require_context
+def introspected_entity_get(context, ie_id):
+    """Gets an introspected entity from the table.
+
+    :param ie_id: = id of the introspected entity
+    """
+    ie_ref = _introspected_entity_query(context).\
+                      filter_by(id=ie_id).\
+                      first()
+    return ie_ref
+
+
+@require_context
+@require_instance_exists_using_uuid
+def introspected_entity_get_by_instance(context, instance_uuid, use_slave=False):
+    """Gets all introspected entities for instance.
+
+    :param instance_uuid: = uuid of the instance to retrieve ie's for
+    """
+    ie_refs = _introspected_entity_query(context, use_slave=use_slave).\
+                       filter_by(instance_uuid=instance_uuid).\
+                       all()
+    return ie_refs
+
+
+@require_context
+def introspected_entity_delete_by_instance(context, instance_uuid):
+    """Delete introspected entity records that are associated
+    with the instance given by instance_id.
+
+    :param instance_uuid: = uuid of instance
+    """
+    _introspected_entity_query(context).\
+           filter_by(instance_uuid=instance_uuid).\
+           soft_delete()
+
+
+@require_context
+def introspected_entity_delete_by_id(context, ie_id):
+    """Delete introspected entity record by id.
+
+    :param ie_id: = id of introspected entity to be deleted
+    """
+    _introspected_entity_query(context).\
+            filter_by(id=ie_id).\
+            soft_delete()
+
+
+@require_context
+def introspected_entity_get_all(context):
+    """Get all vifs."""
+    ie_refs = _introspected_entity_query(context).all()
+    return ie_refs
+
+
+###################
+
