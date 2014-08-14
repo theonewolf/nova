@@ -41,6 +41,7 @@ class IntrospectionController(object):
 
     def __init__(self):
         self.compute_api = compute.API()
+        self.introspection_api = compute.IntrospectionAPI()
         LOG.info('Introspection Extension API Activated!')
         super(IntrospectionController, self).__init__()
 
@@ -63,7 +64,7 @@ class IntrospectionController(object):
             raise exc.HTTPNotFound()
 
         try:
-            ie_info = self.compute_api.show_ie(context, ie_id)
+            ie_info = self.introspection_api.show_ie(context, ie_id)
         except exception.NotFound:
             raise exc.HTTPNotFound()
 
@@ -93,8 +94,10 @@ class IntrospectionController(object):
             instance = self.compute_api.get(context, server_id,
                                             want_objects=True)
             LOG.audit(_("Introspect entity"), instance=instance)
-            ie = self.compute_api.activate_introspection(context, instance,
-                                                         drive_id, target)
+            ie = self.introspection_api.activate_introspection(context,
+                                                               instance,
+                                                               drive_id,
+                                                               target)
         except NotImplementedError:
             msg = _("Compute driver does not support this function.")
             raise exc.HTTPNotImplemented(explanation=msg)
@@ -116,8 +119,8 @@ class IntrospectionController(object):
             raise exc.HTTPNotFound()
 
         try:
-            self.compute_api.deactivate_introspection(context, instance,
-                                                      ie_id=ie_id)
+            self.introspection_api.deactivate_introspection(context, instance,
+                                                            ie_id=ie_id)
         except NotImplementedError:
             msg = _("Compute driver does not support this function.")
             raise exc.HTTPNotImplemented(explanation=msg)
@@ -132,8 +135,8 @@ class IntrospectionController(object):
         results = []
 
         try:
-            data = self.compute_api.list_introspected_entities(context,
-                                                               server_id)
+            data = self.introspection_api.list_introspected_entities(context,
+                                                                     server_id)
         except exception.NotFound:
             raise exc.HTTPNotFound()
         except NotImplementedError:

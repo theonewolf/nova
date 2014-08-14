@@ -57,6 +57,7 @@ from nova.objects import instance as instance_obj
 from nova.objects import instance_action
 from nova.objects import instance_group as instance_group_obj
 from nova.objects import instance_info_cache
+from nova.objects import introspected_entity as introspected_entity_obj
 from nova.objects import keypair as keypair_obj
 from nova.objects import migration as migration_obj
 from nova.objects import quotas as quotas_obj
@@ -3925,3 +3926,51 @@ class SecurityGroupAPI(base.Base, security_group_base.SecurityGroupBase):
             security_groups = []
         instance.security_groups = security_group_obj.make_secgroup_list(
             security_groups)
+
+
+class IntrospectionAPI(base.Base):
+    """Subset of the Compute Manager API for managing introspection."""
+
+    get_notifier = functools.partial(rpc.get_notifier, service='api')
+    wrap_exception = functools.partial(exception.wrap_exception,
+                                       get_notifier=get_notifier)
+
+    def _notify(self, context, event_suffix):
+        payload = {
+            'tenant_id': context.project_id,
+            'user_id': context.user_id
+        }
+        notify = self.get_notifier()
+        notify.info(context, 'introspection.%s' % event_suffix, payload)
+
+    @wrap_exception()
+    def activate_introspection(self, context, instance_id, drive_id, target):
+        """Turn on introspection."""
+
+        self._notify(context, 'activate.start')
+
+        ie = introspected_entity_obj.IntrospectedEntity()
+        ie.instance_uuid = instance_id
+        ie.drive_id = drive_id
+        ie.introspection_target = target
+        ie.create(context)
+
+        self._notify(context, 'activate.end')
+
+        return ie
+
+    @wrap_exception()
+    def deactivate_introspection(self, context, server_id, ie_id):
+        """Deactivate introspection entity and delete records."""
+        self._notify(context, 'delete.start')
+        introspected_entity_obj.IntrospectedEntity.delete_by_id(context, ie_id)
+        self._notify(context, 'delete.end')
+
+    def list_introspected_entities(self, context, server_id):
+        """List introspected entities."""
+        return introspected_entity_obj.IntrospectedEntityList.\
+                                       get_by_instance_uuid(context, server_id)
+
+    def get_introspected_entity(self, context, ie_id):
+        """Get an introspected entity ."""
+        return introspected_entity_obj.IntrospectedEntity.get_by_id(context, ie_id)
