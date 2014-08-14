@@ -3949,11 +3949,13 @@ class IntrospectionAPI(base.Base):
 
         self._notify(context, 'activate.start')
 
-        ie = introspected_entity_obj.IntrospectedEntity()
-        ie.instance_uuid = instance_id
-        ie.drive_id = drive_id
-        ie.introspection_target = target
-        ie.create(context)
+        values = {
+                    "instance_uuid" : instance_id,
+                    "drive_id" : drive_id,
+                    "introspection_target" : target
+                 }
+
+        ie = self.db.introspected_entity_create(context, values)
 
         self._notify(context, 'activate.end')
 
@@ -3963,14 +3965,13 @@ class IntrospectionAPI(base.Base):
     def deactivate_introspection(self, context, server_id, ie_id):
         """Deactivate introspection entity and delete records."""
         self._notify(context, 'delete.start')
-        introspected_entity_obj.IntrospectedEntity.delete_by_id(context, ie_id)
+        self.db.introspected_entity_delete_by_id(context, ie_id) 
         self._notify(context, 'delete.end')
 
     def list_introspected_entities(self, context, server_id):
         """List introspected entities."""
-        return introspected_entity_obj.IntrospectedEntityList.\
-                                       get_by_instance_uuid(context, server_id)
+        return self.db.introspected_entity_get_by_instance(context, server_id) 
 
     def get_introspected_entity(self, context, ie_id):
         """Get an introspected entity ."""
-        return introspected_entity_obj.IntrospectedEntity.get_by_id(context, ie_id)
+        return self.db.introspected_entity_get(context, ie_id) 
