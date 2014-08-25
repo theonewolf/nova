@@ -143,10 +143,9 @@ class IntrospectionController(object):
             msg = _("Compute driver does not support this function.")
             raise exc.HTTPNotImplemented(explanation=msg)
 
-        ies = data.get('introspected_entities', [])
-        results = [entity_maker(ie) for ie in ies]
+        results = [entity_maker(ie) for ie in data]
 
-        return {'introspectedEntities' : results}
+        return {'introspected_entities' : results}
 
 class Introspection(extensions.ExtensionDescriptor):
     """Introspection support."""
