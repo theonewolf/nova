@@ -71,7 +71,7 @@ class IntrospectionController(object):
         if ie_info['introspected_entity']['instance_uuid'] != server_id:
             raise exc.HTTPNotFound()
 
-        return {'introspectedEntity' : _translate_introspected_entity_view(
+        return {'introspected_entity' : _translate_introspected_entity_view(
                 ie_info['introspected_entity'])}
 
     def create(self, req, server_id, body):
@@ -83,7 +83,7 @@ class IntrospectionController(object):
         target = None
 
         if body:
-            ie = body['introspectionEntity']
+            ie = body['introspection_entity']
             drive_id = ie.get('drive_id', None)
             target = ie.get('introspection_target', None)
 
