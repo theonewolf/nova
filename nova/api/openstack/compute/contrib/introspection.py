@@ -41,7 +41,7 @@ class IntrospectionController(object):
 
     def __init__(self):
         self.compute_api = compute.API()
-        self.introspection_api = compute.IntrospectionAPI()
+        self.introspection_api = compute.api.IntrospectionAPI()
         LOG.info('Introspection Extension API Activated!')
         super(IntrospectionController, self).__init__()
 
