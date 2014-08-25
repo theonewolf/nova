@@ -64,7 +64,7 @@ class IntrospectionController(object):
             raise exc.HTTPNotFound()
 
         try:
-            ie_info = self.introspection_api.show_ie(context, ie_id)
+            ie_info = self.introspection_api.get_introspected_entity(context, ie_id)
         except exception.NotFound:
             raise exc.HTTPNotFound()
 
