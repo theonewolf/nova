@@ -68,7 +68,7 @@ class IntrospectionController(object):
         except exception.NotFound:
             raise exc.HTTPNotFound()
 
-        if ie_info['introspected_entity']['instance_uuid'] != server_id:
+        if ie_info['instance_uuid'] != server_id:
             raise exc.HTTPNotFound()
 
         return {'introspected_entity' : _translate_introspected_entity_view(
@@ -95,7 +95,7 @@ class IntrospectionController(object):
                                             want_objects=True)
             LOG.audit(_("Introspect entity"), instance=instance)
             ie = self.introspection_api.activate_introspection(context,
-                                                               instance,
+                                                               server_id,
                                                                drive_id,
                                                                target)
         except NotImplementedError:
