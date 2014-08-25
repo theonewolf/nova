@@ -3974,4 +3974,9 @@ class IntrospectionAPI(base.Base):
 
     def get_introspected_entity(self, context, ie_id):
         """Get an introspected entity ."""
-        return self.db.introspected_entity_get(context, ie_id) 
+        ie = self.db.introspected_entity_get(context, ie_id) 
+
+        if ie == None:
+            raise exception.NotFound
+        else:
+            return ie
