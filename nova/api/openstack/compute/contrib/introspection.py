@@ -72,7 +72,7 @@ class IntrospectionController(object):
             raise exc.HTTPNotFound()
 
         return {'introspected_entity' : _translate_introspected_entity_view(
-                ie_info['introspected_entity'])}
+                ie_info)}
 
     def create(self, req, server_id, body):
         """Activate introspection for a given aspect of an instance."""
