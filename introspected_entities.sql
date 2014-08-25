@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS `introspected_entities`;
+
 CREATE TABLE `introspected_entities` (
       `created_at` datetime DEFAULT NULL,
       `updated_at` datetime DEFAULT NULL,
