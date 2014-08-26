@@ -27,7 +27,7 @@ from nova.virt.libvirt import driver
 
 
 #constants/globals
-QMP_COMMAND = '{"execute" : "drive-backup", "arguments" : {"device" : "drive-virtio-disk0", "mode" : "existing", "format" : "raw", "target" : "nbd://127.0.0.1/%d", "sync" : "stream"} }'
+QMP_COMMAND = '{"execute" : "drive-backup", "arguments" : {"device" : "drive-virtio-disk0", "mode" : "existing", "format" : "raw", "target" : "nbd://127.0.0.1:%d", "sync" : "stream"} }'
 libvirt = None
 libvirt_qemu = None
 
