@@ -27,7 +27,7 @@ from nova.virt.libvirt import driver
 
 
 #constants/globals
-QMP_COMMAND = 'drive-backup sync=stream device=virtio0 ' + \
+QMP_COMMAND = 'drive_backup sync=stream device=virtio0 ' + \
               'target=nbd://127.0.0.1:%d/ format=raw mode=existing'
 libvirt = None
 libvirt_qemu = None
@@ -36,7 +36,11 @@ libvirt_qemu = None
 def check_port(port):
     sock = socket(AF_INET, SOCK_STREAM)
     sock.setblocking(1)
-    return sock.connect_ex(('127.0.0.1', port)) == 0
+    try:
+        sock.connect(('127.0.0.1', port))
+    except:
+        return False
+    return True
 
 def assign_port(a, b):
     testport = randint(a, b)
@@ -74,8 +78,8 @@ class IntrospectionDriver(driver.LibvirtDriver):
         
         cmd = QMP_COMMAND % nbdport
 
-        virt_dom = self._lookup_by_name(instance_name)
         instance_name = instance['name']
+        virt_dom = self._lookup_by_name(instance_name)
         HMP_MODE = libvirt_qemu.VIR_DOMAIN_QEMU_MONITOR_COMMAND_HMP
 
         driver.LOG.info('QMP Command Result: %s' %
