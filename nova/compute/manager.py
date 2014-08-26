@@ -4329,7 +4329,7 @@ class ComputeManager(manager.Manager):
     def activate_introspection(self, context, instance, drive_id,
                                introspection_target):
         LOG.info('Remote compute node activating introspection manager!')
-        self.driver.activate_introspection(self, context, instance, drive_id,
+        self.driver.activate_introspection(context, instance, drive_id,
                                            introspection_target)
         return True
 
@@ -4337,7 +4337,7 @@ class ComputeManager(manager.Manager):
     def deactivate_introspection(self, context, instance, drive_id,
                                  introspection_target):
         LOG.info('Remote compute node deactivating introspection manager!')
-        self.driver.deactivate_introspection(self, context, instance, drive_id,
+        self.driver.deactivate_introspection(context, instance, drive_id,
                                              introspection_target)
         return True
 
