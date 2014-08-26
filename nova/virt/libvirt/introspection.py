@@ -35,6 +35,7 @@ libvirt_qemu = None
 # helper functions
 def check_port(port):
     sock = socket(AF_INET, SOCK_STREAM)
+    sock.setblocking(1)
     return sock.connect_ex(('127.0.0.1', port)) == 0
 
 def assign_port(a, b):
@@ -69,7 +70,7 @@ class IntrospectionDriver(driver.LibvirtDriver):
 
     def exec_qmp(self, instance, nbdport):
         while not check_port(nbdport):
-            sleep(0.02)
+            sleep(0.001)
         
         cmd = QMP_COMMAND % nbdport
 
