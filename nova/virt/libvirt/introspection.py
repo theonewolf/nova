@@ -83,6 +83,8 @@ class IntrospectionDriver(driver.LibvirtDriver):
         virt_dom = self._lookup_by_name(instance_name)
         QMP_MODE = libvirt_qemu.VIR_DOMAIN_QEMU_MONITOR_COMMAND_DEFAULT
 
+        driver.LOG.info('QMP Command: %s' % cmd)
+
         driver.LOG.info('QMP Command Result: %s' %
                  str(libvirt_qemu.qemuMonitorCommand(virt_dom, cmd, QMP_MODE)))
 
