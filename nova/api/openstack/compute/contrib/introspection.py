@@ -95,7 +95,7 @@ class IntrospectionController(object):
                                             want_objects=True)
             LOG.audit(_("Introspect entity"), instance=instance)
             ie = self.introspection_api.activate_introspection(context,
-                                                               server_id,
+                                                               instance,
                                                                drive_id,
                                                                target)
         except NotImplementedError:
