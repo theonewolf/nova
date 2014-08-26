@@ -74,6 +74,8 @@ class IntrospectionDriver(driver.LibvirtDriver):
     def exec_qmp(self, instance, nbdport):
         while not check_port(nbdport):
             sleep(0.001)
+
+        sleep(5) # FIXME sync with nbd process...
         
         cmd = QMP_COMMAND % nbdport
 
