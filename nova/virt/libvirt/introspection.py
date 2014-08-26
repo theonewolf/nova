@@ -27,7 +27,7 @@ from nova.virt.libvirt import driver
 
 
 #constants/globals
-QMP_COMMAND = 'drive-backup sync=stream device=virtio0 ' + 
+QMP_COMMAND = 'drive-backup sync=stream device=virtio0 ' + \
               'target=nbd://127.0.0.1:%d/ format=raw mode=existing'
 libvirt = None
 libvirt_qemu = None
@@ -64,7 +64,7 @@ class IntrospectionDriver(driver.LibvirtDriver):
         driver.LOG.info('IntrospectionDriver compute driver activated!')
 
         global libvirt_qemu
-        if libvirt_qemu is None
+        if libvirt_qemu is None:
             libvirt_qemu = __import__('libvirt_qemu')
 
     def exec_qmp(self, instance, nbdport):
@@ -77,7 +77,7 @@ class IntrospectionDriver(driver.LibvirtDriver):
         instance_name = instance['name']
         HMP_MODE = libvirt_qemu.VIR_DOMAIN_QEMU_MONITOR_COMMAND_HMP
 
-        driver.LOG.info('QMP Command Result: %s' % 
+        driver.LOG.info('QMP Command Result: %s' %
                  str(libvirt_qemu.qemuMonitorCommand(virt_dom, cmd, HMP_MODE)))
 
     def activate_introspection(self, context, instance, drive_id,
