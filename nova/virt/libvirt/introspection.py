@@ -22,8 +22,8 @@ class IntrospectionDriver(driver.LibvirtDriver):
         super(IntrospectionDriver, self).__init__(virtapi)
         driver.LOG.info('IntrospectionDriver compute driver activated!')
 
-    def activate_introspection(self, instance, drive_id, introspection_target):
+    def activate_introspection(self, context, instance, drive_id, introspection_target):
         driver.LOG.info('IntrospectionDriver activate_introspection() called.')
 
-    def deactivate_introspection(self, instance, drive_id, introspection_target):
+    def deactivate_introspection(self, context, instance, drive_id, introspection_target):
         driver.LOG.info('IntrospectionDriver deactivate_introspection() called.')
