@@ -3935,6 +3935,11 @@ class IntrospectionAPI(base.Base):
     wrap_exception = functools.partial(exception.wrap_exception,
                                        get_notifier=get_notifier)
 
+    def __init__(self, **kwargs):
+        self.compute_rpcapi = compute_rpcapi.ComputeAPI()
+
+        super(IntrospectionAPI, self).__init__(**kwargs)
+
     def _notify(self, context, event_suffix):
         payload = {
             'tenant_id': context.project_id,
@@ -3944,28 +3949,33 @@ class IntrospectionAPI(base.Base):
         notify.info(context, 'introspection.%s' % event_suffix, payload)
 
     @wrap_exception()
-    def activate_introspection(self, context, instance_id, drive_id, target):
+    def activate_introspection(self, context, instance, drive_id, target):
         """Turn on introspection."""
 
         self._notify(context, 'activate.start')
 
         values = {
-                    "instance_uuid" : instance_id,
+                    "instance_uuid" : instance_id['uuid'],
                     "drive_id" : drive_id,
                     "introspection_target" : target
                  }
 
         ie = self.db.introspected_entity_create(context, values)
+        self.compute_rpcapi.activate_introspection(context, instance, ie)
 
         self._notify(context, 'activate.end')
 
         return ie
 
     @wrap_exception()
-    def deactivate_introspection(self, context, server_id, ie_id):
+    def deactivate_introspection(self, context, instance, ie_id):
         """Deactivate introspection entity and delete records."""
         self._notify(context, 'delete.start')
-        self.db.introspected_entity_delete_by_id(context, ie_id) 
+
+        ie = self.get_introspected_entity(context, ie_id)
+        self.compute_rpcapi.deactivate_introspection(context, instance, ie)
+        self.db.introspected_entity_delete_by_id(context, ie_id)
+
         self._notify(context, 'delete.end')
 
     def list_introspected_entities(self, context, server_id):
