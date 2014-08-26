@@ -44,7 +44,7 @@ def assign_port(a, b):
     return testport
 
 def setup_nbd(db, port):
-    CMD = ['/home/wolf/gammaray_bin/test/nbd-test']
+    CMD = ['/home/wolf/gammaray_bin/test/nbd-queuer-test']
     CMD.append('null')
     CMD.append('127.0.0.1')
     CMD.append('6379')
