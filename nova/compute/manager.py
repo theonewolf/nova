@@ -4326,6 +4326,22 @@ class ComputeManager(manager.Manager):
             pass
 
     @object_compat
+    def activate_introspection(self, context, instance, drive_id,
+                               introspection_target):
+        LOG.info('Remote compute node activating introspection manager!')
+        self.driver.activate_introspection(self, context, instance, drive_id,
+                                           introspection_target)
+        return True
+
+    @object_compat
+    def deactivate_introspection(self, context, instance, drive_id,
+                                 introspection_target):
+        LOG.info('Remote compute node deactivating introspection manager!')
+        self.driver.deactivate_introspection(self, context, instance, drive_id,
+                                             introspection_target)
+        return True
+
+    @object_compat
     def attach_interface(self, context, instance, network_id, port_id,
                          requested_ip):
         """Use hotplug to add an network adapter to an instance."""

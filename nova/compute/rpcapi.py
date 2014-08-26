@@ -241,6 +241,7 @@ class ComputeAPI(object):
         3.21 - Made rebuild take new-world BDM objects
         3.22 - Made terminate_instance take new-world BDM objects
         3.23 - Added external_instance_event()
+        3.24 - Added activate and deactivate introspection commands
     '''
 
     VERSION_ALIASES = {
@@ -294,6 +295,26 @@ class ComputeAPI(object):
         cctxt.cast(ctxt, 'add_aggregate_host',
                    aggregate=aggregate, host=host_param,
                    slave_info=slave_info)
+
+    def activate_introspection(self, ctxt, instance, ie):
+        version = '3.24'
+
+        cctxt = self.client.prepare(server=_compute_host(None, instance),
+                                    version=version)
+        return cctxt.call(ctxt, 'activate_introspection',
+                                instance=instance,
+                                drive_id=ie.drive_id,
+                                introspection_target=ie.introspection_target)
+
+    def deactivate_introspection(self, ctxt, instance, ie):
+        version = '3.24'
+
+        cctxt = self.client.prepare(server=_compute_host(None, instance),
+                                    version=version)
+        return cctxt.call(ctxt, 'deactivate_introspection',
+                                instance=instance,
+                                drive_id=ie.drive_id,
+                                introspection_target=ie.introspection_target)
 
     def add_fixed_ip_to_instance(self, ctxt, instance, network_id):
         if self.client.can_send_version('3.12'):

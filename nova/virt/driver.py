@@ -314,6 +314,14 @@ class ComputeDriver(object):
         """
         raise NotImplementedError()
 
+    def activate_introspection(self, context, instance, drive_id,
+                               introspection_target):
+        raise NotImplementedError()
+
+    def deactivate_introspection(self, context, instance, drive_id,
+                                 introspection_target):
+        raise NotImplementedError()
+
     def cleanup(self, context, instance, network_info, block_device_info=None,
                 destroy_disks=True):
         """Cleanup the instance resources .
