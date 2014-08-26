@@ -3955,7 +3955,7 @@ class IntrospectionAPI(base.Base):
         self._notify(context, 'activate.start')
 
         values = {
-                    "instance_uuid" : instance_id['uuid'],
+                    "instance_uuid" : instance['uuid'],
                     "drive_id" : drive_id,
                     "introspection_target" : target
                  }
