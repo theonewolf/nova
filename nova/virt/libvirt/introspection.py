@@ -22,6 +22,7 @@ from time import sleep
 
 
 
+from nova import utils
 from nova.virt.libvirt import driver 
 
 
@@ -60,7 +61,63 @@ def setup_nbd(db, port):
     
     return Popen(CMD)
 
+def reset_redis(db=None):
+    if db != None:
+        CMD = ['redis-cli']
+        CMD.append('-n')
+        CMD.append(str(db))
+        CMD.append('flushdb')
+        Popen(CMD).wait()
+        return
 
+    CMD = ['redis-cli']
+    CMD.append('FLUSHALL')
+
+    driver.LOG.info('IntrospectionDriver reset_redis() executing: %s.', CMD)
+    Popen(CMD).wait()
+
+def setup_crawl(uuid):
+    # SETUP
+    (out, err) = utils.execute('qemu-nbd',
+                               '-r',
+                               '-c',
+                               '/dev/nbd0',
+                               '/var/lib/nova/instances/%s/disk' % (uuid),
+                               run_as_root=True)
+    driver.LOG.info('IntrospectionDriver setup_crawl() connecting block device: stdout=(%s), stderr=(%s).', out, err)
+    
+    (out, err) = utils.execute('chmod', '664', '/dev/nbd0', run_as_root=True)
+    driver.LOG.info('IntrospectionDriver setup_crawl() chmod 664: stdout=(%s), stderr=(%s).', out, err)
+
+    # CRAWL 
+    CMD = ['/home/wolf/gammaray_bin/gray-crawler']
+    CMD.append('/dev/nbd0')
+    CMD.append('/var/lib/nova/instances/%s/disk.bson' % (uuid))
+    driver.LOG.info('IntrospectionDriver setup_crawl() executing: %s.', CMD)
+
+    p3 = Popen(CMD)
+    p3.wait()
+
+
+    # TEARDOWN
+    (out, err) = utils.execute('chmod', '660', '/dev/nbd0', run_as_root=True)
+    driver.LOG.info('IntrospectionDriver setup_crawl() chmod 660: stdout=(%s), stderr=(%s).', out, err)
+
+    (out, err) = utils.execute('qemu-nbd',
+                               '-d',
+                               '/dev/nbd0',
+                               run_as_root=True)
+    driver.LOG.info('IntrospectionDriver setup_crawl() deactivating block device: stdout=(%s), stderr=(%s).', out, err)
+
+def setup_introspection(uuid, db):
+    CMD = ['/home/wolf/gammaray_bin/gray-inferencer']
+    CMD.append('/var/lib/nova/instances/%s/disk.bson' % (uuid))
+    CMD.append(str(db))
+    CMD.append(uuid)
+
+    driver.LOG.info('IntrospectionDriver setup_introspection() executing: %s.', CMD)
+
+    return Popen(CMD)
 
 class IntrospectionDriver(driver.LibvirtDriver):
     def __init__(self, virtapi, read_only=False):
@@ -92,8 +149,11 @@ class IntrospectionDriver(driver.LibvirtDriver):
                                introspection_target):
         driver.LOG.info('IntrospectionDriver activate_introspection().')
         nbdport = assign_port(9000, 15000)
+        reset_redis()
         setup_nbd(0, nbdport) # FIXME hard-coded ports
         self.exec_qmp(instance, nbdport)
+        setup_crawl(instance['uuid'])
+        setup_introspection(instance['uuid'], 0)
 
     def deactivate_introspection(self, context, instance, drive_id,
                                  introspection_target):
